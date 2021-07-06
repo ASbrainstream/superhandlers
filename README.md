@@ -82,18 +82,85 @@ security:
 
 ```
 
-### Register AcmePizzaBundle to Kernel
+### Create a Controller under src folder and add following method on it
 
 ``` php
-<?php
+    /**
+     * @Route("/api/register", name="register", methods={"POST"})
+     */
+    public function register(Request $request): View
+    {
+        if($request->isMethod('post')){
+            $email = $request->get('email');
+            $password = $request->get('password');
 
-    # app/AppKernel.php
-    //...
-    $bundles = array(
-        //...
-        new Acme\PizzaBundle\AcmePizzaBundle(),
-    );
-    //...
+            $user = $this->userRepository->findOneBy([
+                'email' => $email
+            ]);
+
+            // If User is already exist
+            if(!is_null($user)) {
+                return $this->view([
+                    'message' => 'User already exists'
+                ], Response::HTTP_CONFLICT);
+            }
+
+            $user = new User();
+            $user->setEmail($email);
+            $user->setPassword($this->passwordEncoder->encodePassword($user, $password));
+            $user->setRoles(["ROLE_USER"]);
+            $this->em->persist($user);
+            $this->em->flush();
+
+            return $this->view([
+                'message' => 'User Created',
+                'user' => $user->getEmail()
+            ], Response::HTTP_CREATED);
+        }
+
+        return $this->view([
+            'message' => 'Invalid Method'
+        ], Response::HTTP_CONFLICT);
+    }
+
+    /**
+     * @param Request $request
+     * @return View
+     * @throws \Exception
+     * @Route("api/login", name="login", methods={"POST"})
+     */
+    public function login(Request $request, JWTTokenManagerInterface $JWTManager, Security $security): View
+    {
+        if($request->isMethod('post')){
+            $request->request->add(json_decode($request->getContent(), true));
+
+            $user = $this->userRepository->findOneBy([
+                'email' => $request->get('email')
+            ]);
+
+            if (!$user || !$this->passwordEncoder->isPasswordValid($user, $request->get('password'))) {
+                return $this->view([
+                    'message' => 'Email or Password is wrong'
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+            $payload = [
+                "user" => $user->getEmail(),
+                "exp"  => (new \DateTime())->modify("+5 minutes")->getTimestamp(),
+            ];
+
+           // $token = $JWTManager->create($security->getUser());
+
+            $jwt = JWT::encode($payload, $this->getParameter('jwt_secret'), 'HS256');
+            return $this->view([
+                'message' => 'Success',
+                'token' => sprintf('Bearer %s', $jwt)
+            ], Response::HTTP_OK);
+        }
+
+        return $this->view([
+            'message' => 'Invalid Method'
+        ], Response::HTTP_CONFLICT);
+    }
 ```
 
 ### Create database and schema
