@@ -19,6 +19,7 @@ Next, run the vendors script to download the bundles:
 ``` bash
 $ bin/console composer install
 $ bin/console doctrine:migrations:migrate
+$ bin/console server:start
 ```
 Make sure you have database created in PhpMyAdmin , It will create the user table there.
 
@@ -180,6 +181,7 @@ http://127.0.0.1:8000/api/login
     "token": "some token"
 }
 ```
+Make sure you have start the server before making the request in POSTMAN
 
 
 
