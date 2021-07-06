@@ -114,6 +114,13 @@ class UserController extends AbstractFOSRestController
         if($request->isMethod('post')){
             $request->request->add(json_decode($request->getContent(), true));
 
+            if(!$request->get('email') || !$request->get('password'))
+            {
+                return $this->view([
+                    'message' => 'Please provide valid details'
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
             $user = $this->userRepository->findOneBy([
                 'email' => $request->get('email')
             ]);
