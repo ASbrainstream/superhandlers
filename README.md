@@ -6,7 +6,8 @@ It is a demo example on how to use JWT for authentication.
 Requirements
 ------------
 
-Symfony(https://github.com/symfony/symfony) obviously.
+Symfony 5.3.2
+PHP 7.3
 
 Installation
 ------------
