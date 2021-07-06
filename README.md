@@ -1,11 +1,7 @@
-Acme Pizza Bundle
+Super Handlers
 =================
 
-This is a test-bundle for the experimental form support.
-
-It is very early status and will be finalized as a demo example over the weekend.
-
-Distribution: Best used with [Symfony Standard Edition](https://github.com/symfony/symfony-standard)
+It is a demo example on how to use JWT for authentication.
 
 Requirements
 ------------
